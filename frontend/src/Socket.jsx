@@ -77,7 +77,7 @@ const SocketComponent = () => {
     }
 
     socketRef.current.emit("private_message", {
-      to: recipient,
+      to: recipient.trim(),
       from: userInfo.username,
       message: inputMessage,
     });
@@ -106,7 +106,7 @@ const SocketComponent = () => {
     }
 
     socketRef.current.emit("register", {
-      username: userInfo.username,
+      username: userInfo.username.trim(),
       socket_id: socketRef.current.id,
     });
     setIsConnected(2);
