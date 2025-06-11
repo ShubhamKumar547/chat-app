@@ -223,7 +223,7 @@
         padding:3px 2px 2px 2px;
         overflow-y:auto;
         
-        min-height:44.3vh;
+        max-height:44.3vh;
         
     }
     .message-panel h3{
