@@ -88,33 +88,17 @@ const SocketComponent = () => {
       from: userInfo.username,
       message: inputMessage,
     });
-    let delivered = 0;
-    socket.on("message_delivered458", async (data) => {
-      const { to, message } = await data;
-      if (
-        JSON.stringify({ to, message }) ===
-        JSON.stringify({ to: recipient.trim(), message: inputMessage })
-      ) {
-        delivered = 1;
-      } else {
-        delivered = 0;
-      }
-      console.log("Message delivered to recipient:", data);
-    });
-    if (delivered) {
-      setMessages((prev) => [
-        ...prev,
-        {
-          from: userInfo.username,
-          message: inputMessage,
-          type: "pending",
-          timestamp: new Date().toISOString(),
-        },
-      ]);
-      setInputMessage("");
-    } else {
-      alert("message not sent");
-    }
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        from: userInfo.username,
+        message: inputMessage,
+        type: "pending",
+        timestamp: new Date().toISOString(),
+      },
+    ]);
+    setInputMessage("");
   };
 
   const registerUser = () => {
