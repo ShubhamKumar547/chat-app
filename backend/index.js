@@ -37,10 +37,6 @@ io.on("connection", (socket) => {
       console.log("");
     }
 
-
-
-
-
     const { username } = user;
     usersInfo[username] = socket.id;
     console.log("Registered users:", usersInfo);
@@ -55,6 +51,9 @@ io.on("connection", (socket) => {
     if (!to_socket_id) {
       console.log(`Recipient ${to} not found`);
       socket.emit("error", `User ${to} is not connected`);
+      socket.emit("message_delivered458", {
+      value:"msg not delivered",
+    });
       return;
     }
 

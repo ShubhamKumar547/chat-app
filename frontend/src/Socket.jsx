@@ -65,6 +65,20 @@ const SocketComponent = () => {
     }
   }, [messages]);
 
+  const responsehandling = (sentData) => {
+    return new Promise((resolve, reject) => {
+      socketRef.current.on("message_delivered458", (data) => {
+        const { to, message } = data;
+        if (JSON.stringify(sentData) === JSON.stringify({ to, message })) {
+          resolve(1);
+        } else {
+          resolve(0);
+        }
+        setTimeout(() => resolve(0), 5000);
+      });
+    });
+  };
+
   const sendPrivateMessage = async () => {
     if (isConnected == 0) {
       alert("Not connected to server");
@@ -88,17 +102,28 @@ const SocketComponent = () => {
       from: userInfo.username,
       message: inputMessage,
     });
+    //response handling
+    let delivered;
+    delivered = await responsehandling({
+      to: recipient.trim(),
+      message: inputMessage,
+    });
+    if (delivered === 1) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          from: userInfo.username,
+          message: inputMessage,
+          type: "pending",
+          timestamp: new Date().toISOString(),
+        },
+      ]);
+      setInputMessage("");
+      delivered=0;
 
-    setMessages((prev) => [
-      ...prev,
-      {
-        from: userInfo.username,
-        message: inputMessage,
-        type: "pending",
-        timestamp: new Date().toISOString(),
-      },
-    ]);
-    setInputMessage("");
+    } else {
+      alert("Message not delivered");
+    }
   };
 
   const registerUser = () => {
