@@ -57,6 +57,12 @@ const SocketComponent = () => {
       socket.disconnect();
     };
   }, []);
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) {
+      el.scrollTop = el.scrollHeight; // Auto-scroll to bottom
+    }
+  }, [messages]);
 
   const sendPrivateMessage = () => {
     if (isConnected == 0) {
@@ -182,7 +188,7 @@ const SocketComponent = () => {
           </div>
         </div>
 
-        <div className="message-panel">
+        <div className="message-panel" ref={scrollRef}>
           <h3>Messages</h3>
           {messages.length === 0 ? (
             <p className="no-messages">No messages yet</p>
