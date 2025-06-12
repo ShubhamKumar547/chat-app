@@ -3,11 +3,11 @@ const http = require("http");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const app = express();
+const cryptoJS = require("crypto-js");
 require("dotenv").config();
-const port = process.env.PORT||3000;
+const port = process.env.PORT || 3000;
 
 const server = http.createServer(app);
-
 
 // Middleware
 app.use(cors());
@@ -17,6 +17,22 @@ app.use(bodyParser.json());
 const { Server } = require("socket.io");
 
 let usersInfo = {};
+
+//gets the data after stringifying the json.
+const dataEncryptor = (data) => {
+  const encrypted = cryptoJS.AES.encrypt(
+    data,
+    process.env.MSG_SECRET
+  ).toString();
+  return encrypted;
+};
+// returns the data after parsing to the json
+const dataDecryptor = (data) => {
+  const bytes = cryptoJS.AES.decrypt(data, process.env.MSG_SECRET);
+  const decryptedString = bytes.toString(cryptoJS.enc.Utf8);
+  const decryptedData = JSON.parse(decryptedString);
+  return decryptedData;
+};
 
 // Setup socket.io with express server
 const io = new Server(server, {
@@ -31,7 +47,6 @@ io.on("connection", (socket) => {
 
   // Registration section
   socket.on("register", (user) => {
-
     if (Object.keys(usersInfo).length >= 200) {
       usersInfo = {};
       console.log("");
@@ -44,33 +59,42 @@ io.on("connection", (socket) => {
   });
 
   // Handle private messages
-  socket.on("private_message", (msg) => {
+  socket.on("private_message", (msg_encrypted) => {
+    const msg = dataDecryptor(msg_encrypted);
+
     const { to, from, message } = msg;
     const to_socket_id = usersInfo[to];
-    
+
     if (!to_socket_id) {
       console.log(`Recipient ${to} not found`);
       socket.emit("error", `User ${to} is not connected`);
       socket.emit("message_delivered458", {
-      value:"msg not delivered",
-    });
+        value: "msg not delivered",
+      });
       return;
     }
 
-    console.log(`Routing message from ${from} to ${to} (socket: ${to_socket_id})`);
-    
-    io.to(to_socket_id).emit("private_message", {
+    console.log(
+      `Routing message from ${from} to ${to} (socket: ${to_socket_id})`
+    );
+
+    const msg_delivered_parsed = JSON.stringify({
       from,
       message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
+    const encrypted_msg = dataEncryptor(msg_delivered_parsed);
+
+    io.to(to_socket_id).emit("private_message", encrypted_msg);
 
     // Send delivery confirmation to sender
-    socket.emit("message_delivered458", {
+    const acknowledgement_data = JSON.stringify({
       to,
       message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
+    const encrypted_acknowledgement_data = dataEncryptor(acknowledgement_data);
+    socket.emit("message_delivered458", encrypted_acknowledgement_data);
   });
 
   // Handle disconnection

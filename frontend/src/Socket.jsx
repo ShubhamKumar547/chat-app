@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import "./Socket.css";
+import cryptoJS from "crypto-js";
 
 const SocketComponent = () => {
   const [messages, setMessages] = useState([]);
@@ -33,8 +34,9 @@ const SocketComponent = () => {
       setConnectionStatus("Disconnected");
     });
 
-    socket.on("private_message", (data) => {
-      console.log("Received message:", data);
+    socket.on("private_message", (encrypted_data) => {
+      const data=dataDecryptor(encrypted_data);
+      //console.log("Received message:", encrypted_data);
       setMessages((prev) => [...prev, { ...data, type: "received" }]);
     });
 
@@ -64,10 +66,30 @@ const SocketComponent = () => {
       el.scrollTop = el.scrollHeight; // Auto-scroll to bottom
     }
   }, [messages]);
+  //gets the data after stringifying the json.
+  const dataEncryptor = (data) => {
+    const encrypted = cryptoJS.AES.encrypt(
+      data,
+      import.meta.env.VITE_MSG_SECRET
+    ).toString();
+    return encrypted;
+  };
+  // returns the data after parsing to the json
+  const dataDecryptor = (data) => {
+    const bytes = cryptoJS.AES.decrypt(
+      data,
+      import.meta.env.VITE_MSG_SECRET
+    );
+    const decryptedString = bytes.toString(cryptoJS.enc.Utf8);
+    const decryptedData = JSON.parse(decryptedString);
+    return decryptedData;
+  };
 
   const responsehandling = (sentData) => {
     return new Promise((resolve, reject) => {
-      socketRef.current.on("message_delivered458", (data) => {
+      socketRef.current.on("message_delivered458", (data_encrypted) => {
+        const data = dataDecryptor(data_encrypted);
+
         const { to, message } = data;
         if (JSON.stringify(sentData) === JSON.stringify({ to, message })) {
           resolve(1);
@@ -97,13 +119,18 @@ const SocketComponent = () => {
       return;
     }
 
-    socketRef.current.emit("private_message", {
+    const data = {
       to: recipient.trim(),
       from: userInfo.username,
       message: inputMessage,
-    });
+    };
+    const parsed_data = JSON.stringify(data);
+    const encryptedData = dataEncryptor(parsed_data);
+
+    socketRef.current.emit("private_message", encryptedData);
     //response handling
     let delivered;
+
     delivered = await responsehandling({
       to: recipient.trim(),
       message: inputMessage,
@@ -119,8 +146,7 @@ const SocketComponent = () => {
         },
       ]);
       setInputMessage("");
-      delivered=0;
-
+      delivered = 0;
     } else {
       alert("Message not delivered");
     }
