@@ -10,6 +10,7 @@ const SocketComponent = () => {
   const [isConnected, setIsConnected] = useState(0);
   const [connectionStatus, setConnectionStatus] = useState("Disconnected");
   const socketRef = useRef(null);
+  const scrollRef = useRef(null);
 
   useEffect(() => {
     socketRef.current = io(import.meta.env.VITE_BACKEND_URL, {
@@ -64,7 +65,7 @@ const SocketComponent = () => {
     }
   }, [messages]);
 
-  const sendPrivateMessage = () => {
+  const sendPrivateMessage = async () => {
     if (isConnected == 0) {
       alert("Not connected to server");
       return;
@@ -87,18 +88,33 @@ const SocketComponent = () => {
       from: userInfo.username,
       message: inputMessage,
     });
-
-    setMessages((prev) => [
-      ...prev,
-      {
-        from: userInfo.username,
-        message: inputMessage,
-        type: "pending",
-        timestamp: new Date().toISOString(),
-      },
-    ]);
-
-    setInputMessage("");
+    let delivered = 0;
+    socket.on("message_delivered458", async (data) => {
+      const { to, message } = await data;
+      if (
+        JSON.stringify({ to, message }) ===
+        JSON.stringify({ to: recipient.trim(), message: inputMessage })
+      ) {
+        delivered = 1;
+      } else {
+        delivered = 0;
+      }
+      console.log("Message delivered to recipient:", data);
+    });
+    if (delivered) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          from: userInfo.username,
+          message: inputMessage,
+          type: "pending",
+          timestamp: new Date().toISOString(),
+        },
+      ]);
+      setInputMessage("");
+    } else {
+      alert("message not sent");
+    }
   };
 
   const registerUser = () => {
