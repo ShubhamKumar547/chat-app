@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import "./Socket.css";
 import cryptoJS from "crypto-js";
-import GuidePopup from "./GuidePopup";
+import GuidePopup from "./GuidePopup.jsx";
 
 
 
