@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import "./Socket.css";
 import cryptoJS from "crypto-js";
+import GuidePopup from "./Userguide.JSX";
 
 const SocketComponent = () => {
+  const [isOpened, setIsOpened] = useState(false);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const [userInfo, setUserInfo] = useState({ username: "", socket_id: "" });
@@ -12,6 +14,7 @@ const SocketComponent = () => {
   const [connectionStatus, setConnectionStatus] = useState("Disconnected");
   const socketRef = useRef(null);
   const scrollRef = useRef(null);
+  console.log(isOpened);
 
   useEffect(() => {
     socketRef.current = io(import.meta.env.VITE_BACKEND_URL, {
@@ -35,7 +38,7 @@ const SocketComponent = () => {
     });
 
     socket.on("private_message", (encrypted_data) => {
-      const data=dataDecryptor(encrypted_data);
+      const data = dataDecryptor(encrypted_data);
       //console.log("Received message:", encrypted_data);
       setMessages((prev) => [...prev, { ...data, type: "received" }]);
     });
@@ -66,6 +69,8 @@ const SocketComponent = () => {
       el.scrollTop = el.scrollHeight; // Auto-scroll to bottom
     }
   }, [messages]);
+
+  
   //gets the data after stringifying the json.
   const dataEncryptor = (data) => {
     const encrypted = cryptoJS.AES.encrypt(
@@ -76,10 +81,7 @@ const SocketComponent = () => {
   };
   // returns the data after parsing to the json
   const dataDecryptor = (data) => {
-    const bytes = cryptoJS.AES.decrypt(
-      data,
-      import.meta.env.VITE_MSG_SECRET
-    );
+    const bytes = cryptoJS.AES.decrypt(data, import.meta.env.VITE_MSG_SECRET);
     const decryptedString = bytes.toString(cryptoJS.enc.Utf8);
     const decryptedData = JSON.parse(decryptedString);
     return decryptedData;
@@ -170,12 +172,15 @@ const SocketComponent = () => {
     alert("User registered successfully");
   };
 
-  return (
+  return (<>
     <div className="chat-container">
-      <h2>Socket.IO Chat</h2>
+      <div className="header-help">
+        <h2>Socket.IO Chat</h2>
+        <div className="help" onClick={()=>isOpened?setIsOpened(false):setIsOpened(true)}>i</div>
+      </div>
 
       <div className="connection-info">
-        <div>
+        <div className="Connection-status">
           Connection Status:{" "}
           <span
             className={`status-${isConnected ? "connected" : "disconnected"}`}
@@ -267,6 +272,8 @@ const SocketComponent = () => {
       </div>
       <div className="creator">Made by "The desV"-IIT-BHU</div>
     </div>
+    <GuidePopup value={isOpened} updateFn={setIsOpened}/>
+    </>
   );
 };
 

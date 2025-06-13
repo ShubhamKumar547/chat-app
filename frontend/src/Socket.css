@@ -65,7 +65,7 @@
 .register-btn {
   padding: 10px 15px;
   background-color: #66ccbd;
-  color: white;
+  color: rgb(0, 0, 0);
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -147,6 +147,28 @@
   align-self: flex-end;
   text-align: right;
 }
+.header-help{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.help{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  /* padding:2%; */
+  width:3%;
+  box-sizing: border-box;
+  
+  background-color:rgb(206, 199, 199);
+  border-radius: 40px;
+  cursor:pointer;
+  aspect-ratio: 1 / 1;
+  
+  font-weight: bold;  
+  color:rgb(0, 0, 0);
+}
 
 
 .message-header {
@@ -178,6 +200,17 @@
 }
 
 @media (max-width: 555px) {
+  .header-help{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.help{
+  
+  width:8%;
+  
+}
+
   .chat-layout {
     flex-direction: column;
   }
