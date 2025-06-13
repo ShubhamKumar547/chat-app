@@ -2,7 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import "./Socket.css";
 import cryptoJS from "crypto-js";
-import GuidePopup from "./Userguide.JSX";
+import GuidePopup from "./GuidePopup";
+
+
 
 const SocketComponent = () => {
   const [isOpened, setIsOpened] = useState(false);
