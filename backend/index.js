@@ -43,18 +43,18 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log(`User connected: ${socket.id}`);
+  //console.log(`User connected: ${socket.id}`);
 
   // Registration section
   socket.on("register", (user) => {
     if (Object.keys(usersInfo).length >= 200) {
       usersInfo = {};
-      console.log("");
+      //console.log("");
     }
 
     const { username } = user;
     usersInfo[username] = socket.id;
-    console.log("Registered users:", usersInfo);
+    //console.log("Registered users:", usersInfo);
     socket.emit("registration_success", { username, socketId: socket.id });
   });
 
@@ -66,7 +66,7 @@ io.on("connection", (socket) => {
     const to_socket_id = usersInfo[to];
 
     if (!to_socket_id) {
-      console.log(`Recipient ${to} not found`);
+      //console.log(`Recipient ${to} not found`);
       //io.to(usersInfo[from]).emit("error", `User ${to} is not connected`);
       const acknowledgement_data = JSON.stringify({
         success: false,
@@ -82,9 +82,9 @@ io.on("connection", (socket) => {
       return;
     }
 
-    console.log(
-      `Routing message from ${from} to ${to} (socket: ${to_socket_id})`
-    );
+    // console.log(
+    //   `Routing message from ${from} to ${to} (socket: ${to_socket_id})`
+    // );
 
     const msg_to_deliver_parsed = JSON.stringify({
       from,
@@ -110,12 +110,12 @@ io.on("connection", (socket) => {
 
   // Handle disconnection
   socket.on("disconnect", () => {
-    console.log(`User disconnected: ${socket.id}`);
+    //console.log(`User disconnected: ${socket.id}`);
     // Clean up disconnected users
     for (const [username, socketId] of Object.entries(usersInfo)) {
       if (socketId === socket.id) {
         delete usersInfo[username];
-        console.log(`Removed disconnected user: ${username}`);
+        //console.log(`Removed disconnected user: ${username}`);
         break;
       }
     }
