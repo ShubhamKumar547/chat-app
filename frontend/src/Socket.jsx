@@ -244,7 +244,7 @@ const SocketComponent = () => {
               />
             </label>
             <button className="send-btn" onClick={sendPrivateMessage}>
-              Send
+              <strong>Send</strong>
             </button>
           </div>
         </div>
