@@ -6,7 +6,7 @@ const GuidePopup = (props) => {
 
   useEffect(() => {
     setIsOpen(props.value);
-    console.log(props);
+    // console.log(props);
   }, [props]);
 
   const handleClose = () => {
@@ -30,15 +30,28 @@ const GuidePopup = (props) => {
             <h4>Purpose and Speciality</h4>
             <ul>
               <li>
+                <strong>
+                  Please try to use in the desktop as it work upto it's full
+                  potential in it
+                </strong>
+              </li>
+              <li>
+                For the mobiles the connection get broken and you need to
+                re-register if 1. The mobile closes OR 2. User moves to the
+                different app and again comes back. 3. Reloads the app
+              </li>
+              <li>
                 This website enables the user to talk privately to anyone in the
                 world without any government or third party data interference
                 using the <strong>STRONG AES STANDARD SECURITY</strong> that no
                 one can decrypt it.Also this website do not use any database to
                 store messages which makes it even more suitable for talking
                 privately.
-                
               </li>
-              <li>** This website does not store any data of the user not even the ip address.</li>
+              <li>
+                ** This website does not store any data of the user not even the
+                ip address.
+              </li>
             </ul>
 
             <h4>User Registration Process</h4>

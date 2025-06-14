@@ -67,10 +67,18 @@ io.on("connection", (socket) => {
 
     if (!to_socket_id) {
       console.log(`Recipient ${to} not found`);
-      socket.emit("error", `User ${to} is not connected`);
-      socket.emit("message_delivered458", {
-        value: "msg not delivered",
+      //io.to(usersInfo[from]).emit("error", `User ${to} is not connected`);
+      const acknowledgement_data = JSON.stringify({
+        success: false,
+        msg: "user not found",
+        timestamp: new Date().toISOString(),
       });
+      const encrypted_acknowledgement_data =
+        dataEncryptor(acknowledgement_data);
+      io.to(usersInfo[from]).emit(
+        "message_delivery_confirmation",
+        encrypted_acknowledgement_data
+      );
       return;
     }
 
@@ -78,23 +86,26 @@ io.on("connection", (socket) => {
       `Routing message from ${from} to ${to} (socket: ${to_socket_id})`
     );
 
-    const msg_delivered_parsed = JSON.stringify({
+    const msg_to_deliver_parsed = JSON.stringify({
       from,
       message,
       timestamp: new Date().toISOString(),
     });
-    const encrypted_msg = dataEncryptor(msg_delivered_parsed);
+    const encrypted_msg = dataEncryptor(msg_to_deliver_parsed);
 
     io.to(to_socket_id).emit("private_message", encrypted_msg);
 
     // Send delivery confirmation to sender
     const acknowledgement_data = JSON.stringify({
-      to,
-      message,
+      success: true,
+      msg: "msg delivered successfully",
       timestamp: new Date().toISOString(),
     });
     const encrypted_acknowledgement_data = dataEncryptor(acknowledgement_data);
-    socket.emit("message_delivered458", encrypted_acknowledgement_data);
+    io.to(usersInfo[from]).emit(
+      "message_delivery_confirmation",
+      encrypted_acknowledgement_data
+    );
   });
 
   // Handle disconnection

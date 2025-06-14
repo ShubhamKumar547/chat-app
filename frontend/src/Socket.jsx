@@ -16,7 +16,7 @@ const SocketComponent = () => {
   const [connectionStatus, setConnectionStatus] = useState("Disconnected");
   const socketRef = useRef(null);
   const scrollRef = useRef(null);
-  console.log(isOpened);
+  // console.log(isOpened);
 
   useEffect(() => {
     socketRef.current = io(import.meta.env.VITE_BACKEND_URL, {
@@ -45,9 +45,9 @@ const SocketComponent = () => {
       setMessages((prev) => [...prev, { ...data, type: "received" }]);
     });
 
-    socket.on("message_delivered458", (data) => {
-      console.log("Message delivered to recipient:", data);
-    });
+    // socket.on("message_delivered458", (data) => {
+    //   console.log("Message delivered to recipient:", data);
+    // });
 
     socket.on("registration_success", (data) => {
       console.log("Registration successful:", data);
@@ -65,6 +65,7 @@ const SocketComponent = () => {
       socket.disconnect();
     };
   }, []);
+
   useEffect(() => {
     const el = scrollRef.current;
     if (el) {
@@ -89,17 +90,13 @@ const SocketComponent = () => {
     return decryptedData;
   };
 
-  const responsehandling = (sentData) => {
+  const responsehandling = () => {
     return new Promise((resolve, reject) => {
-      socketRef.current.on("message_delivered458", (data_encrypted) => {
+      socketRef.current.on("message_delivery_confirmation", (data_encrypted) => {
         const data = dataDecryptor(data_encrypted);
 
-        const { to, message } = data;
-        if (JSON.stringify(sentData) === JSON.stringify({ to, message })) {
-          resolve(1);
-        } else {
-          resolve(0);
-        }
+        const { success, msg } = data;
+        resolve(success);
         setTimeout(() => resolve(0), 5000);
       });
     });
@@ -132,14 +129,15 @@ const SocketComponent = () => {
     const encryptedData = dataEncryptor(parsed_data);
 
     socketRef.current.emit("private_message", encryptedData);
+
+
+
+
     //response handling
     let delivered;
-
-    delivered = await responsehandling({
-      to: recipient.trim(),
-      message: inputMessage,
-    });
-    if (delivered === 1) {
+    delivered = await responsehandling();
+    console.log(delivered);
+    if (delivered) {
       setMessages((prev) => [
         ...prev,
         {
@@ -150,10 +148,15 @@ const SocketComponent = () => {
         },
       ]);
       setInputMessage("");
-      delivered = 0;
     } else {
-      alert("Message not delivered");
+      alert("User not found,Message not delivered");
     }
+
+
+
+
+
+
   };
 
   const registerUser = () => {

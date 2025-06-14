@@ -64,8 +64,8 @@
 
 .register-btn {
   padding: 10px 15px;
-  background-color: #66ccbd;
-  color: rgb(0, 0, 0);
+  background-color: #333333;
+  color: rgb(255, 255, 255);
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -73,7 +73,7 @@
 }
 
 .register-btn:hover {
-  background-color: #41a697;
+  background-color: #111111;
 }
 
 .message-input {
@@ -95,7 +95,7 @@
 
 .send-btn {
   padding: 8px 15px;
-  background-color: #7f5757;
+  background-color: #333333;
   color: white;
   border: none;
   border-radius: 4px;
@@ -103,7 +103,7 @@
 }
 
 .send-btn:hover {
-  background-color: #0d1216;
+  background-color: #111111;
 }
 
 .message-panel {
